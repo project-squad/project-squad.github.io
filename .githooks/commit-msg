@@ -1,0 +1,37 @@
+#!/bin/sh
+#
+# commit-msg hook to enforce Git commit message guidelines
+#
+# Guidelines:
+#   - Capitalize the first letter of the first word
+#   - Keep the message short and to the point (<72 characters)
+#   - Don't end the message with a period
+#   - Use imperative tense
+
+commit_title=$(head -n 1 "$1")
+
+# Check that the commit message is capitalized
+if ! echo "$commit_title" | grep -qE '^[A-Z]'; then
+  echo "Error: Commit message should start with a capital letter" >&2
+  exit 1
+fi
+
+# Check that the commit message is not too long
+if [ ${#commit_title} -gt 72 ]; then
+  echo "Error: Commit message should be no more than 72 characters" >&2
+  exit 1
+fi
+
+# Check that the commit message doesn't end with a period
+if echo "$commit_title" | grep -qE '\.$'; then
+  echo "Error: Commit message should not end with a period" >&2
+  exit 1
+fi
+
+# Check that the commit message uses the imperative tense
+if ! echo "$commit_title" | grep -qE '^(Add|Create|Update|Fix|Remove|Refactor|Test|Bump)(\s.*)*$'; then
+  echo "Warning: Commit message should use the imperative tense (e.g. Add feature, not Added feature)" >&2
+fi
+
+# If all checks passed, exit successfully
+exit 0
